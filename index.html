@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Şafak Sayar</title>
+  <meta name="description" content="Ali'nin şafak sayarı — terhise kalan gün">
+  <meta name="theme-color" content="#0a1a2f">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Şafak Sayar">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <div class="bg" aria-hidden="true">
+    <img src="./img/background.jpg" alt="">
+    <div class="bg-overlay"></div>
+  </div>
+
+  <main id="app">
+
+    <!-- ANA EKRAN -->
+    <section class="tab-panel active" id="panel-home">
+      <div class="home-content">
+        <div class="home-top">
+          <p class="today-line" id="todayLine"></p>
+        </div>
+        <div class="counter" id="counterBox">
+          <div class="counter-number" id="safakNumber">—</div>
+          <div class="counter-label" id="safakLabel">ŞAFAK</div>
+          <div class="counter-sub" id="terhisLine"></div>
+          <div class="counter-extra" id="extraLine" hidden></div>
+          <div class="quote" id="quoteBox" hidden></div>
+        </div>
+        <div class="home-badges">
+          <div class="chip" id="silaChip">🏠 Sıla: –</div>
+          <div class="chip" id="cezaChip" hidden>⚠️ Ceza: –</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAKVİM -->
+    <section class="tab-panel" id="panel-calendar">
+      <div class="panel-inner">
+        <h2 class="panel-title">Takvim</h2>
+        <div class="cal-header">
+          <button class="cal-nav" id="calPrev" aria-label="Önceki ay">‹</button>
+          <div class="cal-month" id="calMonth"></div>
+          <button class="cal-nav" id="calNext" aria-label="Sonraki ay">›</button>
+        </div>
+        <div class="cal-weekdays">
+          <span>Pt</span><span>Sa</span><span>Ça</span><span>Pe</span><span>Cu</span><span>Ct</span><span>Pz</span>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <p class="cal-hint">Bir güne dokunarak not bırakabilirsin 📝</p>
+      </div>
+    </section>
+
+    <!-- SILA -->
+    <section class="tab-panel" id="panel-sila">
+      <div class="panel-inner">
+        <h2 class="panel-title">Sıla İzni</h2>
+        <div class="card stat-card">
+          <div class="stat-big" id="silaRemaining">–</div>
+          <div class="stat-sub">kalan sıla izni hakkı (toplam <span id="silaTotal">6</span> gün)</div>
+        </div>
+        <form class="card form-card" id="silaForm">
+          <h3>Sıla izni kullandım</h3>
+          <label>Kaç gün?
+            <input type="number" id="silaDays" min="1" step="1" inputmode="numeric" placeholder="örn. 3" required>
+          </label>
+          <label>Tarih (isteğe bağlı)
+            <input type="date" id="silaDate">
+          </label>
+          <label>Not (isteğe bağlı)
+            <input type="text" id="silaNote" maxlength="60" placeholder="örn. bayram izni">
+          </label>
+          <button type="submit" class="btn primary">Kaydet</button>
+          <p class="form-info">Kullanılan her gün, şafak sayısına eklenir ve terhis tarihini ileri atar.</p>
+        </form>
+        <div class="list" id="silaList"></div>
+      </div>
+    </section>
+
+    <!-- CEZA -->
+    <section class="tab-panel" id="panel-ceza">
+      <div class="panel-inner">
+        <h2 class="panel-title">Ceza Günleri</h2>
+        <div class="card stat-card">
+          <div class="stat-big" id="cezaTotalDays">0</div>
+          <div class="stat-sub">toplam ceza günü</div>
+        </div>
+        <form class="card form-card" id="cezaForm">
+          <h3>Ceza ekle</h3>
+          <label>Ceza başlığı
+            <input type="text" id="cezaTitle" maxlength="60" placeholder="örn. içtimaya geç kalma" required>
+          </label>
+          <label>Gün sayısı
+            <input type="number" id="cezaDays" min="1" step="1" inputmode="numeric" placeholder="örn. 2" required>
+          </label>
+          <button type="submit" class="btn primary">Ekle</button>
+          <p class="form-info">Eklenen günler şafak sayısına eklenir ve terhis tarihini ileri atar.</p>
+        </form>
+        <div class="list" id="cezaList"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Alt sekme çubuğu -->
+  <nav class="tabbar" role="tablist">
+    <button class="tab active" data-tab="home" role="tab" aria-selected="true"><span class="tab-icon">🌅</span><span>Şafak</span></button>
+    <button class="tab" data-tab="calendar" role="tab"><span class="tab-icon">📅</span><span>Takvim</span></button>
+    <button class="tab" data-tab="sila" role="tab"><span class="tab-icon">🏠</span><span>Sıla</span></button>
+    <button class="tab" data-tab="ceza" role="tab"><span class="tab-icon">⚠️</span><span>Ceza</span></button>
+  </nav>
+
+  <!-- Not modalı -->
+  <div class="modal-backdrop" id="noteModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="noteModalTitle">
+      <h3 id="noteModalTitle">Güne not bırak</h3>
+      <p class="modal-date" id="noteModalDate"></p>
+      <textarea id="noteText" rows="5" maxlength="500" placeholder="Bugün neler oldu? Buraya yaz..."></textarea>
+      <div class="modal-actions">
+        <button class="btn ghost" id="noteCancel">Vazgeç</button>
+        <button class="btn danger" id="noteDelete" hidden>Sil</button>
+        <button class="btn primary" id="noteSave">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/quotes.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
