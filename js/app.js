@@ -350,7 +350,26 @@ document.addEventListener("visibilitychange", () => {
 
 /* ================== Service Worker ================== */
 if ("serviceWorker" in navigator) {
+  // Yeni sürüm devreye girince sayfayı yenile; not yazılıyorsa yazı kaybolmasın diye sonraya bırak.
+  const hadController = !!navigator.serviceWorker.controller;
+  let pendingReload = false;
+  const reloadIfSafe = () => {
+    if (!noteModal.hidden) { pendingReload = true; return; }
+    location.reload();
+  };
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (hadController) reloadIfSafe();
+  });
+  new MutationObserver(() => {
+    if (pendingReload && noteModal.hidden) location.reload();
+  }).observe(noteModal, { attributes: true, attributeFilter: ["hidden"] });
+
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch(() => {});
+    navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" }).then((reg) => {
+      // Ana ekran uygulaması çoğu zaman yeniden başlamaz, arka plandan döner: o an da güncelleme ara.
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) reg.update().catch(() => {});
+      });
+    }).catch(() => {});
   });
 }
